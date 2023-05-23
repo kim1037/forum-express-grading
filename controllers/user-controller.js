@@ -63,11 +63,6 @@ const userController = {
         nest: true
       })
       if (!user) throw new Error("User didn't exist.")
-      // const commentRestaurant = user.Comments
-      //   ? user.Comments.map(comment => comment.Restaurant.dataValues)
-      //   : 0
-      console.log('user:', user, 'comment:', comments)
-      // 可以直接回傳user.toJSON()再透過user.Comments>取出this.Restaurant.id/image
       return res.render('users/profile', {
         user: user.toJSON(),
         comments
