@@ -44,26 +44,35 @@ const userController = {
     req.logout()
     res.redirect('/signin')
   },
-  getUser: (req, res, next) => {
-    return User.findByPk(req.params.id, {
-      include: {
-        model: Comment,
-        include: Restaurant
-      },
-      nest: true
-    })
-      .then(user => {
-        if (!user) throw new Error("User didn't exist.")
-        const commentRestaurant = user.Comments
-          ? user.Comments.map(comment => comment.Restaurant.dataValues)
-          : 0
-        // 可以直接回傳user.toJSON()再透過user.Comments>取出this.Restaurant.id/image
-        return res.render('users/profile', {
-          user: user.toJSON(),
-          commentRestaurant
-        })
+  getUser: async (req, res, next) => {
+    try {
+      const user = await User.findByPk(req.params.id, {
+        include: [
+          { model: Restaurant, as: 'FavoritedRestaurants', attributes: ['id', 'image'] },
+          { model: User, as: 'Followings', attributes: ['id', 'image'] },
+          { model: User, as: 'Followers', attributes: ['id', 'image'] }]
       })
-      .catch(e => next(e))
+      const comments = await Comment.findAll({
+        where: { userId: req.params.id },
+        include: [{
+          model: Restaurant,
+          attributes: ['id', 'image']
+        }],
+        group: ['restaurantId'], // 避免重複
+        raw: true,
+        nest: true
+      })
+      if (!user) throw new Error("User didn't exist.")
+      // const commentRestaurant = user.Comments
+      //   ? user.Comments.map(comment => comment.Restaurant.dataValues)
+      //   : 0
+      console.log('user:', user, 'comment:', comments)
+      // 可以直接回傳user.toJSON()再透過user.Comments>取出this.Restaurant.id/image
+      return res.render('users/profile', {
+        user: user.toJSON(),
+        comments
+      })
+    } catch (e) { next(e) }
   },
   editUser: (req, res, next) => {
     return User.findByPk(req.params.id, { raw: true })
@@ -81,7 +90,7 @@ const userController = {
       .then(([user, filePath]) => {
         if (!user) throw new Error("User didn't exist.")
         return user.update({
-          name,
+          name: name.trim(),
           image: filePath || user.image
         })
       })
@@ -156,7 +165,7 @@ const userController = {
       include: [{ model: User, as: 'Followers' }]
     })
       .then(users => {
-      // 重整所有users資料
+        // 重整所有users資料
         users = users
           .map(user => ({
             ...user.toJSON(),
