@@ -35,7 +35,7 @@
           {{#if user.Followings.length}}
           {{#each user.Followings}}
           <div class="me-1 mb-1">
-            <a href="/user/{{this.id}}"><img
+            <a href="/users/{{this.id}}"><img
                 src="{{this.image}}" alt=""
                 style="width: 80px;height:80px; object-fit: cover;" /></a>
           </div>
@@ -54,7 +54,7 @@
           {{#if user.Followers.length}}
           {{#each user.Followers}}
           <div class="me-1 mb-1">
-              <a href="/user/{{this.id}}"><img src="{{this.image}}" alt="" style="width: 80px;height:80px; object-fit: cover;" /></a>
+              <a href="/users/{{this.id}}"><img src="{{this.image}}" alt="" style="width: 80px;height:80px; object-fit: cover;" /></a>
           </div>
           {{/each}}
           {{else}}

@@ -3,7 +3,7 @@ const path = require('path') // node.js原生module
 
 // require modules
 const express = require('express')
-const routes = require('./routes')
+const { pages } = require('./routes')
 const flash = require('connect-flash')
 const session = require('express-session')
 const usePassport = require('./config/passport')
@@ -54,7 +54,7 @@ app.use((req, res, next) => {
 })
 
 // set routes
-app.use(routes)
+app.use(pages)
 
 app.listen(port, () => {
   console.info(`Example app listening on port http://localhost:${port}`)
