@@ -10,18 +10,18 @@ const restaruantController = {
     const offset = getOffset(limit, page)
     try {
       const restaurants = await Restaurant.findAndCountAll({
-        where: { ...(categoryId ? { categoryId } : {}) },
+        where: { ...categoryId ? { categoryId } : {} },
         limit,
         offset,
         raw: true,
-        next: true,
+        nest: true,
         include: Category
       })
       const categories = await Category.findAll({ raw: true })
       const favoritedRestaurantsId =
-        req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
+        req.user?.FavoritedRestaurants.map(fr => fr.id) // 等同req.user && req.user.FavoritedRestaurants...
       const likedRestaurantsId =
-          req.user && req.user.LikedRestaurants.map(lr => lr.id)
+        req.user?.LikedRestaurants.map(lr => lr.id)
       const data = restaurants.rows.map(r => ({
         ...r,
         description: r.description.substring(0, 50),

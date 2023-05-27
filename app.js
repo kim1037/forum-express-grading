@@ -3,7 +3,7 @@ const path = require('path') // node.js原生module
 
 // require modules
 const express = require('express')
-const { pages } = require('./routes')
+const { pages, apis } = require('./routes')
 const flash = require('connect-flash')
 const session = require('express-session')
 const usePassport = require('./config/passport')
@@ -54,6 +54,7 @@ app.use((req, res, next) => {
 })
 
 // set routes
+app.use('/api', apis) // for front-end
 app.use(pages)
 
 app.listen(port, () => {
