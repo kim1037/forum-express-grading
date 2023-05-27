@@ -1,4 +1,4 @@
-const { Restaurant, Category, Comment, User } = require('../../models')
+const { Restaurant, Category } = require('../../models')
 const { getOffset, getPagination } = require('../../helpers/pagination-helper')
 
 const restaurantController = {
@@ -17,7 +17,7 @@ const restaurantController = {
         raw: true,
         nest: true
       })
-      const categories = await Category.findAll({raw:true})
+      const categories = await Category.findAll({ raw: true })
       const favoritedRestaurantsId =
         req.user?.FavoritedRestaurants ? req.user.FavoritedRestaurants.map(fr => fr.id) : []
       const likedRestaurantsId =
