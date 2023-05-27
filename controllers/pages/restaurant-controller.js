@@ -1,42 +1,9 @@
 const { Restaurant, Category, Comment, User } = require('../../models')
-const { getOffset, getPagination } = require('../../helpers/pagination-helper')
+const restaurantServices = require('../../services/restaurant-services')
 
 const restaruantController = {
   getRestaurants: async (req, res, next) => {
-    const DEFAULT_LIMIT = 9
-    const categoryId = Number(req.query.categoryId) || ''
-    const page = Number(req.query.page) || 1
-    const limit = Number(req.query.limit) || DEFAULT_LIMIT
-    const offset = getOffset(limit, page)
-    try {
-      const restaurants = await Restaurant.findAndCountAll({
-        where: { ...categoryId ? { categoryId } : {} },
-        limit,
-        offset,
-        raw: true,
-        nest: true,
-        include: Category
-      })
-      const categories = await Category.findAll({ raw: true })
-      const favoritedRestaurantsId =
-        req.user?.FavoritedRestaurants.map(fr => fr.id) // 等同req.user && req.user.FavoritedRestaurants...
-      const likedRestaurantsId =
-        req.user?.LikedRestaurants.map(lr => lr.id)
-      const data = restaurants.rows.map(r => ({
-        ...r,
-        description: r.description.substring(0, 50),
-        isFavorited: favoritedRestaurantsId.includes(r.id),
-        isLiked: likedRestaurantsId.includes(r.id)
-      }))
-      res.render('restaurants', {
-        restaurants: data,
-        categories,
-        categoryId,
-        pagination: getPagination(limit, page, restaurants.count)
-      })
-    } catch (e) {
-      next(e)
-    }
+    restaurantServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('restaurants', data))
   },
   getRestaurant: (req, res, next) => {
     return Restaurant.findByPk(req.params.id, {
