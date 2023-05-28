@@ -3,7 +3,7 @@ const { imgurFileHandler } = require('../../helpers/file-helpers')
 const adminServices = require('../../services/admin-services')
 
 const adminController = {
-  getRestaurants: async (req, res, next) => {
+  getRestaurants: (req, res, next) => {
     adminServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('admin/restaurants', data))
   },
   // create restaurant page
@@ -93,16 +93,12 @@ const adminController = {
       .catch(e => next(e))
   },
   deleteRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id)
-      .then(restaurant => {
-        if (!restaurant) throw new Error("Restaurant didn't exist!")
-        return restaurant.destroy()
-      })
-      .then(() => {
-        req.flash('success_messages', 'restaurant was successfully deleted')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(e => next(e))
+    adminServices.deleteRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.session.deletedData = data
+      return res.redirect('/admin/restaurants')
+    }
+    )
   },
   getUsers: (req, res, next) => {
     return User.findAll({
