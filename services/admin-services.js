@@ -1,6 +1,6 @@
 const { Restaurant, User, Category } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
-
+const { imgurFileHandler } = require('../helpers/file-helpers')
 const adminServices = {
   getRestaurants: async (req, cb) => {
     const DEFAULT_LIMIT = 10
@@ -16,12 +16,36 @@ const adminServices = {
         limit
       })
       // 使用 findAndCountAll 回傳{count, rows:[{id..}],..}
-      return cb(null,
-        {
-          restaurants: restaurants.rows,
-          pagination: getPagination(limit, page, restaurants.count)
+      return cb(null, {
+        restaurants: restaurants.rows,
+        pagination: getPagination(limit, page, restaurants.count)
+      })
+    } catch (e) {
+      cb(e)
+    }
+  },
+  postRestaurant: (req, cb) => {
+    const { name, tel, address, openingHours, description, categoryId } =
+      req.body
+    // 若name是空值就會終止程式碼，並在畫面顯示錯誤提示
+    if (!name) throw new Error('Restaurant name is required!')
+    const { file } = req // 把檔案取出來,同 const file = req.file
+    imgurFileHandler(file) // 此為promise物件
+      .then(filePath => {
+        // create a new Restaurant instance and save it into db
+        Restaurant.create({
+          name,
+          tel,
+          address,
+          openingHours,
+          description,
+          image: filePath || null,
+          categoryId
         })
-    } catch (e) { cb(e) }
+      })
+      .then(newRestaurant => cb(null, { restaurant: newRestaurant })
+      )
+      .catch(e => cb(e))
   },
   deleteRestaurant: (req, cb) => {
     Restaurant.findByPk(req.params.id)
@@ -33,9 +57,11 @@ const adminServices = {
         }
         return restaurant.destroy()
       })
-      .then(deletedRestaurant => cb(null, {
-        restaurant: deletedRestaurant
-      }))
+      .then(deletedRestaurant =>
+        cb(null, {
+          restaurant: deletedRestaurant
+        })
+      )
       .catch(e => cb(e))
   }
 }

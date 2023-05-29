@@ -15,28 +15,12 @@ const adminController = {
   },
   // create new restaurant
   postRestaurant: (req, res, next) => {
-    const { name, tel, address, openingHours, description, categoryId } = req.body
-    // 若name是空值就會終止程式碼，並在畫面顯示錯誤提示
-    if (!name) throw new Error('Restaurant name is required!')
-    const { file } = req // 把檔案取出來,同 const file = req.file
-    imgurFileHandler(file) // 此為promise物件
-      .then(filePath => {
-        // create a new Restaurant instance and save it into db
-        Restaurant.create({
-          name,
-          tel,
-          address,
-          openingHours,
-          description,
-          image: filePath || null,
-          categoryId
-        })
-      })
-      .then(() => {
-        req.flash('success_messages', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(e => next(e))
+    adminServices.postRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.flash('success_messages', 'restaurant was successfully created')
+      req.session.createdData = data
+      return res.redirect('/admin/restaurants')
+    })
   },
   // show a restaurant details
   getRestaurant: (req, res, next) => {
