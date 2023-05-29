@@ -35,7 +35,7 @@ app.use(
 )
 // set body-parser
 app.use(express.urlencoded({ extended: true }))
-
+app.use(express.json())
 // set passport
 usePassport(app)
 

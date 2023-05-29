@@ -33,7 +33,7 @@ const adminServices = {
     imgurFileHandler(file) // 此為promise物件
       .then(filePath => {
         // create a new Restaurant instance and save it into db
-        Restaurant.create({
+        return Restaurant.create({
           name,
           tel,
           address,
@@ -43,9 +43,10 @@ const adminServices = {
           categoryId
         })
       })
-      .then(newRestaurant => cb(null, { restaurant: newRestaurant })
-      )
-      .catch(e => cb(e))
+      .then(newRestaurant => {
+        cb(null, { restaurant: newRestaurant })
+      })
+      .catch(err => cb(err))
   },
   deleteRestaurant: (req, cb) => {
     Restaurant.findByPk(req.params.id)
