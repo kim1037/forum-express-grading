@@ -5,7 +5,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     // 先查詢categories的id共有那些
     const categories = await queryInterface.sequelize.query(
-      'SELECT id FROM Categories;',
+      'SELECT id FROM Categories WHERE name <> "未分類";',
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
     await queryInterface.bulkInsert(
@@ -23,7 +23,7 @@ module.exports = {
         updated_at: new Date(),
         // 考量到雲端的database, 產生資料時id可能會跳號
         category_id:
-          categories[Math.floor(Math.random() * (categories.length - 1))].id
+          categories[Math.floor(Math.random() * (categories.length))].id
       }))
     )
   },

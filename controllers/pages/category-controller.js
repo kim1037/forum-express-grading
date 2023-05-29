@@ -39,17 +39,23 @@ const categoryController = {
         include: [Restaurant]
       })
       if (!category) throw new Error("Category didn't exist!")
+      if (category.name === '未分類') {
+        // 防止未分類被刪除產生Foreign Key Constraint Error
+        req.flash('error_messages', "This category can't be delete!")
+        return res.redirect('/admin/categories')
+      } else {
       // 找出屬於此分類的餐廳有哪些, 並把id整合成新array例如 : [1, 15 , 23 , 25]
-      const changeRestaurantId = category.Restaurants.map(rest => rest.toJSON().id)
-      // 找出'未分類'的id並把這些餐廳的categoryId改成該id
-      const uncategorized = await Category.findOne({ where: { name: '未分類' } }, { raw: true })
-      await Restaurant.update({ categoryId: uncategorized.id }, { where: { id: changeRestaurantId } })
+        const changeRestaurantId = category.Restaurants.map(rest => rest.toJSON().id)
+        // 找出'未分類'的id並把這些餐廳的categoryId改成該id
+        const uncategorized = await Category.findOne({ where: { name: '未分類' } }, { raw: true })
+        await Restaurant.update({ categoryId: uncategorized.id }, { where: { id: changeRestaurantId } })
 
-      // 改完之後再刪除分類
-      await category.destroy()
+        // 改完之後再刪除分類
+        await category.destroy()
 
-      req.flash('success_messages', 'Category was successfully deleted')
-      res.redirect('/admin/categories')
+        req.flash('success_messages', 'Category was successfully deleted')
+        return res.redirect('/admin/categories')
+      }
     } catch (e) {
       next(e)
     }
