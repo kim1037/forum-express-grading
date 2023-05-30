@@ -8,7 +8,7 @@ const userController = {
       delete userData.password // delete object.property 刪除敏感資料
       // 用法: jwt.sign(payload, secretOrPrivateKey, [options, callback])
       const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' }) // 效期30天
-      res.json({
+      return res.json({
         status: 'success',
         data: {
           token,
