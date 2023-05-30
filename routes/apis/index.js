@@ -14,6 +14,7 @@ router.get('/restaurants', authenticated, restController.getRestaurants)
 
 // sign in // app.post(path, callback [, callback ...])
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
+router.post('/signup', userController.signUp)
 
 // error handler
 router.use('/', apiErrorHandler)

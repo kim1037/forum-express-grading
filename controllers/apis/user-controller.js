@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const userServices = require('../../services/user-services')
 
 const userController = {
   signIn: (req, res, next) => {
@@ -17,6 +18,11 @@ const userController = {
     } catch (err) { // 和.catch{...} 差別在於後者只能承接promise物件, jwt.sign不是非同步事件,不會回傳promise
       next(err)
     }
+  },
+  signUp: (req, res, next) => {
+    userServices.signUp(req, (err, data) =>
+      err ? next(err) : res.json({ status: 'success', data })
+    )
   }
 }
 
