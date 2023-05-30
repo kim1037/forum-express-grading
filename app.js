@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 const path = require('path') // node.js原生module
 
@@ -6,7 +9,7 @@ const express = require('express')
 const { pages, apis } = require('./routes')
 const flash = require('connect-flash')
 const session = require('express-session')
-const usePassport = require('./config/passport')
+const passport = require('./config/passport')
 const handlebars = require('express-handlebars')
 const { getUser } = require('./helpers/auth-helpers')
 const handlebarsHelpers = require('./helpers/handlebars-helpers')
@@ -14,9 +17,6 @@ const methodOverride = require('method-override')
 
 // set server
 const app = express()
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
-}
 const port = process.env.PORT || 3000
 const SESSION_SECRET = 'secret'
 
@@ -33,11 +33,12 @@ app.use(
     saveUninitialized: false
   })
 )
+app.use(passport.initialize())
+app.use(passport.session())
+
 // set body-parser
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-// set passport
-usePassport(app)
 
 // set middlewares
 app.use(flash())
